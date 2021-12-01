@@ -1,24 +1,34 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import type { StoreInterface } from "./store";
 
-interface IForm {
+export interface IForm {
   handleSubmit: React.FormEventHandler<HTMLFormElement>;
   handleChange: React.ChangeEventHandler<HTMLInputElement>;
-  // handleDrop: React.ChangeEventHandler<HTMLInputElement>;
-  handleDrop: () => void;
-  state: {
+  handleDrop: React.ChangeEventHandler<HTMLInputElement>;
+  //   handleDrop: (files: any) => void;
+  vals: {
     name: string;
     description: string;
     file?: File | Blob | string;
+    loading: boolean;
+    error: string;
+    success?: boolean;
   };
 }
+
+export type HandleSubmit = IForm["handleSubmit"];
+
+export type HandleChange = IForm["handleChange"];
+
+export type HandleDrop = IForm["handleDrop"];
+
+export type FormVals = IForm["vals"];
 
 export const Form = ({
   handleSubmit,
   handleDrop,
   handleChange,
-  state,
+  vals,
 }: IForm) => {
   return (
     <div>
@@ -26,29 +36,48 @@ export const Form = ({
         <input
           type="text"
           name="name"
-          value={state.name}
+          value={vals.name}
           onChange={handleChange}
         />
         <input
           type="text"
           name="description"
-          value={state.description}
+          value={vals.description}
           onChange={handleChange}
         />
-        <Dropzone handleDrop={handleDrop} />
+        <input
+          type="file"
+          name="file"
+          onChange={handleDrop}
+        />
         <button type="submit">Mint</button>
       </form>
     </div>
   );
 };
 
+export interface INFTMeta {
+  name: string;
+  description: string;
+  image: string;
+  tokenURI: string;
+}
+
+export const NFTMetaView = (props: INFTMeta) => {
+  return (
+    <div>
+      <div>{JSON.stringify(props)}</div>
+    </div>
+  );
+};
+
 interface IDropzone {
-  handleDrop: () => void;
+  handleDrop: HandleDrop;
 }
 
 function Dropzone({ handleDrop }: IDropzone) {
   const onDrop = useCallback((files) => {
-    handleDrop();
+    handleDrop(files);
   }, []);
 
   const {
@@ -71,24 +100,3 @@ function Dropzone({ handleDrop }: IDropzone) {
     </div>
   );
 }
-
-export const Button = ({
-  state,
-  setState,
-}: {
-  setState: StoreInterface["setState"];
-  state: StoreInterface["state"];
-}) => {
-  return (
-    <>
-      <button
-        onClick={() =>
-          setState({ ...state, name: "chris" })
-        }
-      >
-        Set name
-      </button>
-      <div>{JSON.stringify(state)}</div>
-    </>
-  );
-};
