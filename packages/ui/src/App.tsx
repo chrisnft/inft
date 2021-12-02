@@ -1,22 +1,36 @@
 import * as React from "react";
 import * as view from "./components";
-import * as hooks from "./handlers";
+import * as hooks from "./hooks";
+import { config } from "./config";
+
+const FJSON = (v: any) =>
+  JSON.stringify(v, null, 2);
 
 function App() {
-  const hks = hooks.useForm();
+  const appState = hooks.useApp(
+    config.network,
+    config.defaultNetOptions
+  );
+
+  const formHk = hooks.useForm(
+    config.IPFS_ID,
+    config.IPFS_KEY
+  );
+
   return (
     <div>
       <div>Hello World</div>
       <view.Form
-        handleChange={hks.handleChange}
-        handleDrop={hks.handleDrop}
-        handleSubmit={hks.handleSubmit}
-        vals={hks.formVals}
+        handleChange={formHk.handleChange}
+        handleDrop={formHk.handleDrop}
+        handleSubmit={formHk.handleSubmit}
+        vals={formHk.formVals}
       />
-      <div>{JSON.stringify(hks.formVals)}</div>
-      {hks.nftMeta && (
-        <view.NFTMetaView {...hks.nftMeta} />
+      <div>{JSON.stringify(formHk.formVals)}</div>
+      {formHk.nftMeta && (
+        <view.NFTMetaView {...formHk.nftMeta} />
       )}
+      <div>{FJSON(appState)}</div>
     </div>
   );
 }

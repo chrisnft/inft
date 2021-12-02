@@ -1,6 +1,6 @@
 {
-  "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-  "network": "localhost",
+  "address": "0x03b8197d46B0D0e5db5BF95b7AfdEC1ABB317F36",
+  "network": "ropsten",
   "name": "iNFT",
   "symbol": "iNFT",
   "abi": [

@@ -1,14 +1,82 @@
-import * as view from "./components";
+import type * as view from "./components";
 import * as React from "react";
 import * as ipfsClient from "ipfs-http-client";
-import dotenv from "dotenv";
-dotenv.config();
-const IPFS_ID =
-  process.env.REACT_APP_INFURA_IPFS_ID;
-const IPFS_KEY =
-  process.env.REACT_APP_INFURA_IPFS_KEY;
+import { ethers } from "ethers";
 
-export const useForm = () => {
+const debug = console.log;
+
+type AppState = {
+  init: boolean;
+  networkName: string;
+  options?: any;
+  provider: ethers.providers.BaseProvider;
+  network: {
+    etherPrice: number;
+    blockNumber: number;
+    network: ethers.providers.Network;
+    blockWithTransactions: any;
+  };
+};
+
+export const useApp = (
+  networkName = "ropsten",
+  options?: any
+) => {
+  const initState = {
+    init: true,
+    networkName,
+    options,
+  } as AppState;
+  const [state, setState] =
+    React.useState(initState);
+
+  const init = async () => {
+    debug("Starting init...");
+    try {
+      if (state.init) {
+        await timeout(4);
+        debug("Getting provider...");
+        const provider = getProvider(
+          networkName,
+          options
+        );
+        debug("Fetching network...");
+        await timeout(4);
+        const resnetwork = await fetchNetwork(
+          provider
+        );
+        await timeout(4);
+        debug("Setting state...");
+        setState({
+          ...state,
+          network: resnetwork,
+          provider,
+          init: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  React.useEffect(() => {
+    if (state.init) {
+      init();
+    }
+  }, []);
+
+  return state;
+};
+
+export interface IHooks {
+  useForm: typeof useForm;
+  addNFTMetaToIPFS: typeof addNFTMetaToIPFS;
+}
+
+export const useForm = (
+  ipfsId?: string,
+  ipfsKey?: string
+) => {
   const initialVals: view.FormVals = {
     name: "",
     description: "",
@@ -48,7 +116,7 @@ export const useForm = () => {
     e
   ) => {
     e.preventDefault();
-    if (!IPFS_ID || !IPFS_KEY) {
+    if (!ipfsId || !ipfsKey) {
       setVals({
         ...vals,
         error: "IPFS environment vars not set.",
@@ -58,8 +126,8 @@ export const useForm = () => {
     setVals({ ...vals, loading: true });
 
     const result = await addNFTMetaToIPFS(
-      IPFS_ID,
-      IPFS_KEY,
+      ipfsId,
+      ipfsKey,
       vals
     );
     setNftMeta(result);
@@ -119,6 +187,41 @@ export const addNFTMetaToIPFS = async (
   };
 
   return nftMetaView;
+};
+
+const providers = ethers.providers;
+
+export const getProvider = (
+  network: string,
+  options: any
+) => {
+  debug(network);
+  return providers.getDefaultProvider(
+    network,
+    options
+  );
+};
+
+const fetchNetwork = async (
+  provider: ethers.providers.BaseProvider
+) => {
+  debug("Fetching...");
+  await timeout(1);
+  const eprice = await provider.getEtherPrice();
+  await timeout(1);
+  const bn = await provider.getBlockNumber();
+  await timeout(1);
+  const network = await provider.getNetwork();
+  await timeout(1);
+  const bt =
+    await provider.getBlockWithTransactions(bn);
+  const result = {
+    etherPrice: eprice,
+    blockNumber: bn,
+    network,
+    blockWithTransactions: "",
+  };
+  return result;
 };
 
 const timeout = (sec: number) =>

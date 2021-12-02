@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { ethers } from "ethers";
 
 export interface IForm {
   handleSubmit: React.FormEventHandler<HTMLFormElement>;
@@ -71,32 +71,17 @@ export const NFTMetaView = (props: INFTMeta) => {
   );
 };
 
-interface IDropzone {
-  handleDrop: HandleDrop;
+export interface NetworkInfo {
+  network: string;
+  name: string;
+  ether: number;
 }
 
-function Dropzone({ handleDrop }: IDropzone) {
-  const onDrop = useCallback((files) => {
-    handleDrop(files);
-  }, []);
-
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({ onDrop });
-
+export const Network = (props: NetworkInfo) => {
   return (
-    <div {...getRootProps()}>
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <p>Drop the files here ...</p>
-      ) : (
-        <p>
-          Drag 'n' drop some files here, or click
-          to select files
-        </p>
-      )}
+    <div>
+      <div>{props.name}</div>
+      <div>{props.ether}</div>
     </div>
   );
-}
+};
