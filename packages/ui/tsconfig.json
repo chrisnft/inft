@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
     "lib": [
       "dom",
       "dom.iterable",
@@ -13,14 +15,18 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
-, "src/.ideas/react-app-env.d.ts", "src/.ideas/setupTests.ts"  ]
+    "src/**/*.ts",
+    "src/**/*.tsx"
+, "src/a.mjs"  ],
+  // "exclude": [
+  //   "node_modules"
+  // ],
+  "outDir": "dist"
 }
+

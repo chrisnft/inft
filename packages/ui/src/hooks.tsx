@@ -1,228 +1,166 @@
-import type * as view from "./components";
-import * as React from "react";
-import * as ipfsClient from "ipfs-http-client";
-import { ethers } from "ethers";
+import { ethers } from 'ethers'
+import React, { useState, useEffect } from 'react'
+import { API } from './api'
+import { config } from './config'
+const api = API(config.api)
+const debug = console.log
 
-const debug = console.log;
+// TODO: V2 Seperate state and use generics for hooks
+// ReturnType
+type EventHandleSubmit = React.FormEventHandler<HTMLFormElement>
+type EventHandleChange = React.ChangeEventHandler<HTMLInputElement>
+type HookState = { loading: boolean; error: unknown | Error | unknown }
+type NFTMetadata = {
+  name: string
+  description: string
+  file: File | string | Blob
+}
+type FormState = NFTMetadata & HookState & { prevImgURL: string }
+type Unwrap<T> = T extends Promise<infer U>
+  ? U
+  : T extends (...args: any) => Promise<infer U>
+  ? U
+  : T extends (...args: any) => infer U
+  ? U
+  : T
 
-type AppState = {
-  init: boolean;
-  networkName: string;
-  options?: any;
-  provider: ethers.providers.BaseProvider;
-  network: {
-    etherPrice: number;
-    blockNumber: number;
-    network: ethers.providers.Network;
-    blockWithTransactions: any;
-  };
-};
-
-export const useApp = (
-  networkName = "ropsten",
-  options?: any
-) => {
-  const initState = {
-    init: true,
-    networkName,
-    options,
-  } as AppState;
-  const [state, setState] =
-    React.useState(initState);
-
-  const init = async () => {
-    debug("Starting init...");
-    try {
-      if (state.init) {
-        await timeout(4);
-        debug("Getting provider...");
-        const provider = getProvider(
-          networkName,
-          options
-        );
-        debug("Fetching network...");
-        await timeout(4);
-        const resnetwork = await fetchNetwork(
-          provider
-        );
-        await timeout(4);
-        debug("Setting state...");
-        setState({
-          ...state,
-          network: resnetwork,
-          provider,
-          init: false,
-        });
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
+type NetworkState = Unwrap<typeof api.fetchNetwork> | null
+export const useNetwork = () => {
+  const [state, setState] = useState<NetworkState>(null)
   React.useEffect(() => {
-    if (state.init) {
-      init();
+    debug('useApi.useEffect...')
+    try {
+      api.fetchNetwork().then((v) => setState({ ...state, ...v }))
+    } catch (e) {
+      console.log(e)
     }
-  }, []);
+  }, [])
 
-  return state;
-};
-
-export interface IHooks {
-  useForm: typeof useForm;
-  addNFTMetaToIPFS: typeof addNFTMetaToIPFS;
+  return state
 }
 
-export const useForm = (
-  ipfsId?: string,
-  ipfsKey?: string
-) => {
-  const initialVals: view.FormVals = {
-    name: "",
-    description: "",
-    file: "",
+type AccountState = Unwrap<typeof api.createUserAccount>
+export const useAccount = (key?: string) => {
+  const [state, setState] = useState<AccountState>(undefined)
+
+  React.useEffect(() => {
+    try {
+      api.createUserAccount(key).then((v) => {
+        if (v) {
+          setState({ ...state, ...v })
+        }
+      })
+    } catch (e) {
+      debug(e)
+    }
+  }, [])
+
+  return state
+}
+
+/**
+ * Form logic and handlers.
+ * @param contract User connected contract
+ * @param userAddress User address
+ * @returns The form values from user
+ */
+export function useForm(contract?: ethers.Contract, userAddress?: string) {
+  type MintResult = Unwrap<typeof api.mint> | null
+  const [nftMeta, setNftMeta] = useState<MintResult>(null)
+
+  const initVals: FormState = {
+    name: '',
+    description: '',
+    file: '',
+    prevImgURL: '',
     loading: false,
-    error: "",
-  };
-  const [vals, setVals] =
-    React.useState(initialVals);
+    error: '',
+  }
 
-  const nftMetaViewInitialVals: view.INFTMeta = {
-    name: "",
-    description: "",
-    image: "",
-    tokenURI: "",
-  };
-  const [nftMeta, setNftMeta] = React.useState(
-    nftMetaViewInitialVals
-  );
+  const [vals, setVals] = useState<FormState>(initVals)
 
-  const handleDrop: view.HandleDrop = (e) => {
-    const files = e.target.files as FileList;
+  const handleFile: EventHandleChange = (e) => {
+    const files = e.target.files as FileList
+    const prevImgURL = URL.createObjectURL(files[0])
     setVals({
       ...vals,
+      prevImgURL,
       file: files[0],
-    });
-  };
+    })
+  }
 
-  const handleChange: view.HandleChange = (e) => {
+  const handleChange: EventHandleChange = (e) => {
     setVals({
       ...vals,
       [e.target.name]: e.target.value,
-    });
-  };
+    })
+  }
 
-  const handleSubmit: view.HandleSubmit = async (
-    e
-  ) => {
-    e.preventDefault();
-    if (!ipfsId || !ipfsKey) {
-      setVals({
-        ...vals,
-        error: "IPFS environment vars not set.",
-      });
-      return;
+  const handleSubmit: EventHandleSubmit = async (e) => {
+    e.preventDefault()
+    debug('Minting....')
+    if (contract && userAddress) {
+      setVals({ ...vals, loading: true })
+      // await api.timeout(2)
+      try {
+        const result = await api.mint(vals, contract, userAddress)
+        setNftMeta({ ...result })
+      } catch (e) {
+        console.log(e)
+        setVals({ ...vals, loading: false, error: String(e) })
+      }
     }
-    setVals({ ...vals, loading: true });
-
-    const result = await addNFTMetaToIPFS(
-      ipfsId,
-      ipfsKey,
-      vals
-    );
-    setNftMeta(result);
-    setVals({ ...vals, loading: false });
-  };
+    // Update state
+    setVals({ ...vals, loading: false })
+  }
 
   return {
     handleChange,
-    handleDrop,
+    handleFile,
     handleSubmit,
     formVals: vals,
     nftMeta,
-  };
-};
+  }
+}
 
-export const addNFTMetaToIPFS = async (
-  id: string,
-  key: string,
-  data: view.FormVals
-) => {
-  const auth: string =
-    "Authorization: Basic " +
-    btoa(`${id}:${key}`);
-  const TOKEN_URI_BASE_URL =
-    "https://ipfs.io/ipfs/";
+export function useTab<T>(data: T) {
+  const [state, setState] = React.useState<T>()
+  setState(data)
+  return state
+}
 
-  const opts: ipfsClient.Options = {
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https",
-    headers: {
-      Authorization: auth,
-    },
-  };
-  const client = ipfsClient.create(opts);
-  const file = data.file as File;
+export function useMintOutput<T>(mintData: T) {
+  const ref = React.useRef<HTMLAnchorElement>(null)
 
-  const resFile = await client.add(file); // Add image
-  await timeout(2);
+  const outputToFile = (
+    data: any,
+    element?: React.RefObject<HTMLAnchorElement>
+  ) => {
+    if (element && element.current) {
+      // console.log(data)
+      const output = JSON.stringify(data, null, 2)
+      const file = new Blob([output], { type: 'text/plain' })
+      const current = element.current
+      current.href = URL.createObjectURL(file)
+      current.download = 'mint-result.json'
+      current.click()
+    }
+  }
 
-  const req = {
-    name: data.name,
-    description: data.description,
-    image: TOKEN_URI_BASE_URL + resFile.path,
-  };
-  const resMeta = await client.add(
-    JSON.stringify(req)
-  ); // NFT METADATA
+  const handleOutputSave = () => {
+    outputToFile(mintData, ref)
+  }
 
-  console.log(resMeta);
+  useEffect(() => {
+    debug('Effect UseMintOutput standing by...')
+    if (mintData) {
+      debug('Effect UseMintOutput fire...')
+      outputToFile(mintData, ref)
+      return () => {
+        // Cleanup
+      }
+    }
+  }, [mintData])
 
-  const nftMetaView = {
-    name: req.name,
-    description: req.description,
-    image: req.image,
-    tokenURI: TOKEN_URI_BASE_URL + resMeta.path,
-  };
-
-  return nftMetaView;
-};
-
-const providers = ethers.providers;
-
-export const getProvider = (
-  network: string,
-  options: any
-) => {
-  debug(network);
-  return providers.getDefaultProvider(
-    network,
-    options
-  );
-};
-
-const fetchNetwork = async (
-  provider: ethers.providers.BaseProvider
-) => {
-  debug("Fetching...");
-  await timeout(1);
-  const eprice = await provider.getEtherPrice();
-  await timeout(1);
-  const bn = await provider.getBlockNumber();
-  await timeout(1);
-  const network = await provider.getNetwork();
-  await timeout(1);
-  const bt =
-    await provider.getBlockWithTransactions(bn);
-  const result = {
-    etherPrice: eprice,
-    blockNumber: bn,
-    network,
-    blockWithTransactions: "",
-  };
-  return result;
-};
-
-const timeout = (sec: number) =>
-  new Promise((r) => setTimeout(r, sec * 1000));
+  return { ref, handleOutputSave }
+}
