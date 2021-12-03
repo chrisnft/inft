@@ -82,7 +82,8 @@ export function API(config: APIConfig) {
 
     const result = await ipfs.store(req)
 
-    const FRIENDLY_TOKEN_URI = TOKEN_URI_BASE_URL + result.ipnft // Don't use 'ipfs://' because of browsers
+    const FRIENDLY_TOKEN_URI =
+      TOKEN_URI_BASE_URL + result.ipnft + '/metadata.json' // Don't use 'ipfs://' because of browsers
 
     const nftMetaView = {
       ...result.data,

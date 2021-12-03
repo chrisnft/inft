@@ -22,6 +22,9 @@ export const MintForm = ({
 }: IForm) => {
   return (
     <div className="main bg-gray-100 p-2 rounded-md shadow">
+      <div className="flex mb-4 items-baseline font-mono">
+        <span>Mint</span>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="space-y-8 divide-y divide-gray-200 border-gray-500"
