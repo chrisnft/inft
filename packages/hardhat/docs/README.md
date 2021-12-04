@@ -1,5 +1,24 @@
 # INFT
 
+# Table of contents
+
+<!--ts-->
+
+- [INFT](#inft)
+- [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+    - [ERC721 (Non-Fungible Token Standard) Proposal](#erc721-non-fungible-token-standard-proposal)
+    - [Motivation](#motivation)
+  - [Development](#development)
+    - [Getting Started](#getting-started)
+    - [Contracts](#contracts)
+    - [Hardhat](#hardhat)
+  - [Requirements](#requirements)
+  - [Test Cases](#test-cases)
+  - [References](#references)
+  - [Citations](#citations)
+<!--te-->
+
 ## Introduction
 
 This is an experimental ethereum development environment for developing NFT contracts.
@@ -52,291 +71,7 @@ TODO
 
 <img src="./assets/dev-flow-chart.png"/>
 
-> IERC721
-
-```typescript
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC721/IERC721.sol)
-
-pragma solidity ^0.8.0;
-
-import "../../utils/introspection/IERC165.sol";
-
-/**
- * @dev Required interface of an ERC721 compliant contract.
- */
-interface IERC721 is IERC165 {
-    /**
-     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-
-    /**
-     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
-     */
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-
-    /**
-     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
-     */
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
-    /**
-     * @dev Returns the number of tokens in ``owner``'s account.
-     */
-    function balanceOf(address owner) external view returns (uint256 balance);
-
-    /**
-     * @dev Returns the owner of the `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function ownerOf(uint256 tokenId) external view returns (address owner);
-
-    /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
-
-    /**
-     * @dev Transfers `tokenId` token from `from` to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
-
-    /**
-     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
-     * The approval is cleared when the token is transferred.
-     *
-     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
-     *
-     * Requirements:
-     *
-     * - The caller must own the token or be an approved operator.
-     * - `tokenId` must exist.
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address to, uint256 tokenId) external;
-
-    /**
-     * @dev Returns the account approved for `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function getApproved(uint256 tokenId) external view returns (address operator);
-
-    /**
-     * @dev Approve or remove `operator` as an operator for the caller.
-     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
-     *
-     * Requirements:
-     *
-     * - The `operator` cannot be the caller.
-     *
-     * Emits an {ApprovalForAll} event.
-     */
-    function setApprovalForAll(address operator, bool _approved) external;
-
-    /**
-     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
-     *
-     * See {setApprovalForAll}
-     */
-    function isApprovedForAll(address owner, address operator) external view returns (bool);
-
-    /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes calldata data
-    ) external;
-}
-```
-
-<br/>
-
-> ERC721URIStorage
-
-```typescript
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC721/extensions/ERC721URIStorage.sol)
-
-pragma solidity ^0.8.0;
-
-import "../ERC721.sol";
-
-/**
- * @dev ERC721 token with storage based token URI management.
- */
-abstract contract ERC721URIStorage is ERC721 {
-    using Strings for uint256;
-
-    // Optional mapping for token URIs
-    mapping(uint256 => string) private _tokenURIs;
-
-    /**
-     * @dev See {IERC721Metadata-tokenURI}.
-     */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
-
-        string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = _baseURI();
-
-        // If there is no base URI, return the token URI.
-        if (bytes(base).length == 0) {
-            return _tokenURI;
-        }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
-        }
-
-        return super.tokenURI(tokenId);
-    }
-
-    /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
-        _tokenURIs[tokenId] = _tokenURI;
-    }
-
-    /**
-     * @dev Destroys `tokenId`.
-     * The approval is cleared when the token is burned.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _burn(uint256 tokenId) internal virtual override {
-        super._burn(tokenId);
-
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
-        }
-    }
-}
-
-```
-
-### Hardhat
-
-Hardhat is a framework or tool that assists in developing Ethereum contracts.
-Developing contracts with Hardhat is a painless experience. You can compile your contracts and deploy to a blockchain network in no time.
-
-> Hardhat Runtime Environment (HRE)
-
-During development, the all scripts, tests, and tasks implent the Hardhat Runtime Environment (HRE).
-
-The [Hardhat Runtime Environment](https://hardhat.org/advanced/hardhat-runtime-environment.html), or HRE for short, is an object containing all the functionality that Hardhat exposes when running a task, test or script. In reality, Hardhat is the HRE.
-
-When you require Hardhat (`import hardhat from 'hardhat'`) you're getting an instance of the HRE.
-
-During initialization, the Hardhat configuration file essentially constructs a list of things to be added to the HRE. This includes tasks, configs and plugins. Then when tasks, tests or scripts run, the HRE is always present and available to access anything that is contained in it.
-
-The HRE has a role of centralizing coordination across all Hardhat components. This architecture allows for plugins to inject functionality that becomes available everywhere the HRE is accessible.
-
-> Currently the interface for the HRE looks like this
-
-```typescript
-interface HardhatRuntimeEnvironment {
-  // Hardhat's Runtime
-  readonly config: HardhatConfig;
-  readonly hardhatArguments: HardhatArguments;
-  readonly tasks: TasksMap;
-  readonly run: RunTaskFunction;
-  readonly network: Network;
-  readonly artifacts: Artifacts;
-  // Extensions for plugins start here
-}
-```
-
-<br/>
-
-> Config
-
-The _hardhat.config.js_ sets the configuration to run Hardhat for testing, scripts, compiling, and deploying contracts.
-
-```typescript
-const config: HardhatUserConfig = {
-  solidity: "0.8.4",
-  networks: {
-    localhost: {
-      url: "http://127.0.0.1:8545",
-    },
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined
-          ? [process.env.PRIVATE_KEY]
-          : [],
-    },
-  },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
-  },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
-};
-```
+### Getting Started
 
 > Compile your contracts
 
@@ -475,6 +210,194 @@ No need to generate any newer typings.
 ```
 
 TODO
+
+### Contracts
+
+> IERC721
+
+```typescript
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (token/ERC721/IERC721.sol)
+
+pragma solidity ^0.8.0;
+
+import "../../utils/introspection/IERC165.sol";
+
+/**
+ * @dev Required interface of an ERC721 compliant contract.
+ */
+interface IERC721 is IERC165 {
+
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+
+    function approve(address to, uint256 tokenId) external;
+
+
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+
+    function setApprovalForAll(address operator, bool _approved) external;
+
+
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
+}
+```
+
+<br/>
+
+> ERC721URIStorage
+
+```typescript
+
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (token/ERC721/extensions/ERC721URIStorage.sol)
+
+pragma solidity ^0.8.0;
+
+import "../ERC721.sol";
+
+/**
+ * @dev ERC721 token with storage based token URI management.
+ */
+abstract contract ERC721URIStorage is ERC721 {
+    using Strings for uint256;
+
+    mapping(uint256 => string) private _tokenURIs;
+
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
+
+        string memory _tokenURI = _tokenURIs[tokenId];
+        string memory base = _baseURI();
+
+        if (bytes(base).length == 0) {
+            return _tokenURI;
+        }
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(base, _tokenURI));
+        }
+
+        return super.tokenURI(tokenId);
+    }
+
+
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+        require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+
+    function _burn(uint256 tokenId) internal virtual override {
+        super._burn(tokenId);
+
+        if (bytes(_tokenURIs[tokenId]).length != 0) {
+            delete _tokenURIs[tokenId];
+        }
+    }
+}
+
+```
+
+TODO - Describe contracts
+
+### Hardhat
+
+Hardhat is a framework or tool that assists in developing Ethereum contracts.
+Developing contracts with Hardhat is a painless experience. You can compile your contracts and deploy to a blockchain network in no time.
+
+> Hardhat Runtime Environment (HRE)
+
+During development, the all scripts, tests, and tasks implent the Hardhat Runtime Environment (HRE).
+
+The [Hardhat Runtime Environment](https://hardhat.org/advanced/hardhat-runtime-environment.html), or HRE for short, is an object containing all the functionality that Hardhat exposes when running a task, test or script. In reality, Hardhat is the HRE.
+
+When you require Hardhat (`import hardhat from 'hardhat'`) you're getting an instance of the HRE.
+
+During initialization, the Hardhat configuration file essentially constructs a list of things to be added to the HRE. This includes tasks, configs and plugins. Then when tasks, tests or scripts run, the HRE is always present and available to access anything that is contained in it.
+
+The HRE has a role of centralizing coordination across all Hardhat components. This architecture allows for plugins to inject functionality that becomes available everywhere the HRE is accessible.
+
+> Currently the interface for the HRE looks like this
+
+```typescript
+interface HardhatRuntimeEnvironment {
+  // Hardhat's Runtime
+  readonly config: HardhatConfig;
+  readonly hardhatArguments: HardhatArguments;
+  readonly tasks: TasksMap;
+  readonly run: RunTaskFunction;
+  readonly network: Network;
+  readonly artifacts: Artifacts;
+  // Extensions for plugins start here
+}
+```
+
+<br/>
+
+> Config
+
+The _hardhat.config.js_ sets the configuration to run Hardhat for testing, scripts, compiling, and deploying contracts.
+
+```typescript
+const config: HardhatUserConfig = {
+  solidity: "0.8.4",
+  networks: {
+    localhost: {
+      url: "http://127.0.0.1:8545",
+    },
+    ropsten: {
+      url: process.env.ROPSTEN_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined
+          ? [process.env.PRIVATE_KEY]
+          : [],
+    },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+};
+```
 
 ## Requirements
 
