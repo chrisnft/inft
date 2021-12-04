@@ -280,7 +280,7 @@ abstract contract ERC721URIStorage is ERC721 {
 Hardhat is a framework or tool that assists in developing Ethereum contracts.
 Developing contracts with Hardhat is a painless experience. You can compile your contracts and deploy to a blockchain network in no time.
 
-#### Hardhat Runtime Environment (HRE)
+> Hardhat Runtime Environment (HRE)
 
 During development, the all scripts, tests, and tasks implent the Hardhat Runtime Environment (HRE).
 
