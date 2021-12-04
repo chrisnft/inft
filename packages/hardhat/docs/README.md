@@ -1,4 +1,4 @@
-# INFT Contracts
+# INFT
 
 ## Introduction
 
@@ -40,11 +40,17 @@ TODO
 
 ## Development
 
+> Prerequesites
+
 - [Node](https://nodejs.org/en/download/) - Nodejs (^16.0.0)
 - [Git](https://git-scm.com/downloads) - Git tool
 - [Typescript](https://www.typescriptlang.org/) - Typescript language
 - [hardhat.config.js](https://hardhat.org/config/) - Hardhat config file
 - [OpenZeppelin contract library](https://github.com/OpenZeppelin/openzeppelin-contracts)
+
+> Dev flow
+
+<img src="./assets/dev-flow-chart.png"/>
 
 > IERC721
 
@@ -300,10 +306,6 @@ interface HardhatRuntimeEnvironment {
   // Extensions for plugins start here
 }
 ```
-
-> Dev flow
-
-<img src="./assets/dev-flow-chart.png"/>
 
 <br/>
 
