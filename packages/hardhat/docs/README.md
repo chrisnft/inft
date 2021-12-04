@@ -1,9 +1,23 @@
 # INFT Contracts
 
+## Introduction
+
 This is an experimental ethereum development environment for developing NFT contracts.
 The contracts were developed with the [Hardhat](https://hardhat.org) framework and is a subclass of the [OpenZeppelin](https://openzeppelin.com/) contract library. All contracts implemented are MIT Licesesed.
 
-## ERC721 (Non-Fungible Token Standard) Proposal
+_If you're new to smart contract development, head to [Developing Smart Contracts](https://docs.openzeppelin.com/learn/developing-smart-contracts)._
+
+ERC-721 defines a minimum interface a smart contract must implement to allow unique tokens to be managed, owned, and traded. It does not mandate a standard for token metadata or restrict adding supplemental functions.
+
+First, the INFT contract is a subclass of OpenZeppelin's
+[ERC721URIStorage](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/extensions/ERC721URIStorage.sol)
+which is a subclasss of [ERC721](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol).
+
+<img src="./assets/inft-class-diagram.png"/>
+
+<br/>
+
+### ERC721 (Non-Fungible Token Standard) Proposal
 
 The authors of ERC-721 are William Entriken, Dieter Shirley, Jacob Evans, and Nastassia Sachswas.
 created on 2018-01-24
@@ -20,23 +34,17 @@ In brief, according to their [proposal](https://eips.ethereum.org/EIPS/eip-721):
 
 > In general, all houses are distinct and no two kittens are alike. NFTs are distinguishable and you must track the ownership of each one separately.
 
-## Motivation
+### Motivation
 
 TODO
 
 ## Development
 
-_If you're new to smart contract development, head to [Developing Smart Contracts](https://docs.openzeppelin.com/learn/developing-smart-contracts)._
-
-ERC-721 defines a minimum interface a smart contract must implement to allow unique tokens to be managed, owned, and traded. It does not mandate a standard for token metadata or restrict adding supplemental functions.
-
-First, the INFT contract is a subclass of OpenZeppelin's
-[ERC721URIStorage](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/extensions/ERC721URIStorage.sol)
-which is a subclasss of [ERC721](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol).
-
-<img src="./assets/inft-class-diagram.png"/>
-
-<br/>
+- [Node](https://nodejs.org/en/download/) - Nodejs (^16.0.0)
+- [Git](https://git-scm.com/downloads) - Git tool
+- [Typescript](https://www.typescriptlang.org/) - Typescript language
+- [hardhat.config.js](https://hardhat.org/config/) - Hardhat config file
+- [OpenZeppelin contract library](https://github.com/OpenZeppelin/openzeppelin-contracts)
 
 > IERC721
 
@@ -261,18 +269,37 @@ abstract contract ERC721URIStorage is ERC721 {
 
 ```
 
-## Requirements
-
-- [Node](https://nodejs.org/en/download/) - Nodejs (^16.0.0)
-- [Git](https://git-scm.com/downloads) - Git tool
-- [Typescript](https://www.typescriptlang.org/) - Typescript language
-- [hardhat.config.js](https://hardhat.org/config/) - Hardhat config file
-- [OpenZeppelin contract library](https://github.com/OpenZeppelin/openzeppelin-contracts)
-
-## Hardhat
+### Hardhat
 
 Hardhat is a framework or tool that assists in developing Ethereum contracts.
 Developing contracts with Hardhat is a painless experience. You can compile your contracts and deploy to a blockchain network in no time.
+
+#### Hardhat Runtime Environment (HRE)
+
+During development, the all scripts, tests, and tasks implent the Hardhat Runtime Environment (HRE).
+
+The [Hardhat Runtime Environment](https://hardhat.org/advanced/hardhat-runtime-environment.html), or HRE for short, is an object containing all the functionality that Hardhat exposes when running a task, test or script. In reality, Hardhat is the HRE.
+
+When you require Hardhat (`import hardhat from 'hardhat'`) you're getting an instance of the HRE.
+
+During initialization, the Hardhat configuration file essentially constructs a list of things to be added to the HRE. This includes tasks, configs and plugins. Then when tasks, tests or scripts run, the HRE is always present and available to access anything that is contained in it.
+
+The HRE has a role of centralizing coordination across all Hardhat components. This architecture allows for plugins to inject functionality that becomes available everywhere the HRE is accessible.
+
+> Currently the interface for the HRE looks like this
+
+```typescript
+interface HardhatRuntimeEnvironment {
+  // Hardhat's Runtime
+  readonly config: HardhatConfig;
+  readonly hardhatArguments: HardhatArguments;
+  readonly tasks: TasksMap;
+  readonly run: RunTaskFunction;
+  readonly network: Network;
+  readonly artifacts: Artifacts;
+  // Extensions for plugins start here
+}
+```
 
 > Dev flow
 
@@ -445,38 +472,29 @@ No need to generate any newer typings.
 🤘  Finished deployment and saved deployment information to  📁  deployments/deployment.json
 ```
 
-## In Detail
-
-### Hardhat Runtime Environment (HRE)
-
-During development, the all scripts, tests, and tasks implent the Hardhat Runtime Environment (HRE).
-
-The [Hardhat Runtime Environment](https://hardhat.org/advanced/hardhat-runtime-environment.html), or HRE for short, is an object containing all the functionality that Hardhat exposes when running a task, test or script. In reality, Hardhat is the HRE.
-
-When you require Hardhat (`import hardhat from 'hardhat'`) you're getting an instance of the HRE.
-
-During initialization, the Hardhat configuration file essentially constructs a list of things to be added to the HRE. This includes tasks, configs and plugins. Then when tasks, tests or scripts run, the HRE is always present and available to access anything that is contained in it.
-
-The HRE has a role of centralizing coordination across all Hardhat components. This architecture allows for plugins to inject functionality that becomes available everywhere the HRE is accessible.
-
-> Currently the interface for the HRE looks like this
-
-```typescript
-interface HardhatRuntimeEnvironment {
-  // Hardhat's Runtime
-  readonly config: HardhatConfig;
-  readonly hardhatArguments: HardhatArguments;
-  readonly tasks: TasksMap;
-  readonly run: RunTaskFunction;
-  readonly network: Network;
-  readonly artifacts: Artifacts;
-  // Extensions for plugins start here
-}
-```
-
-## Deploy
-
 TODO
+
+## Requirements
+
+NFT
+
+1. The NFT contract should be successfully deployed to the blockchain network.
+
+2. NFT contract should specifically have the 'mint' capability.
+
+3. Internally, each 'mint' should produce a unique token id (This is the unique token).
+
+4. Internally, contract should be able to receive a wallet's address and token URI.
+
+5. User should be allowed to connect to contract.
+
+6. When user mint's a token, user should recieve a unique token ID that is mapped to their wallet address and the user's tokenURI.
+
+7. User can mint a new token with their wallet's **address** and **tokenURI**.
+
+8. User should be the only owner of the token.
+
+9. User should receive all tokens they have minted.
 
 ## Test Cases
 
