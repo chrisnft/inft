@@ -13,4 +13,5 @@ ReactDOM.render(
   document.getElementById('root')
 )
 
+/** API */
 export { API } from './api'
