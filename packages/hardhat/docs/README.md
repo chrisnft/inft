@@ -1,11 +1,11 @@
 # INFT
 
-# Table of contents
+## Table of contents
 
 <!--ts-->
 
 - [INFT](#inft)
-- [Table of contents](#table-of-contents)
+  - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
     - [ERC721 (Non-Fungible Token Standard) Proposal](#erc721-non-fungible-token-standard-proposal)
     - [Motivation](#motivation)
@@ -14,10 +14,11 @@
     - [Contracts](#contracts)
     - [Hardhat](#hardhat)
   - [Requirements](#requirements)
+  - [API](#api)
   - [Test Cases](#test-cases)
   - [References](#references)
   - [Citations](#citations)
-<!--te-->
+  <!--te-->
 
 ## Introduction
 
@@ -420,6 +421,27 @@ NFT
 8. User should be the only owner of the token.
 
 9. User should receive all tokens they have minted.
+
+## API
+
+TODO
+
+docs/api
+
+```solidity
+
+constructor() (public)
+Initializes the contract by setting a name and a symbol to the token collection.
+
+Constructor for contract name and symbol.
+
+_baseURI() → string (internal)
+Base URI for computing the {tokenURI}. The resulting URI for each token will be the concatenation of the baseURI and the tokenId.
+
+mint(address to, string tokenURI) → uint256 (public)
+Creates a new token. A unique id is created for each token 'tokenId'. The tokenURI is the URI to the metadata. The user's address is mapped to the 'tokenId' and 'tokenURI'.
+
+```
 
 ## Test Cases
 
