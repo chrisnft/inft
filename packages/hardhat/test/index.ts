@@ -8,12 +8,12 @@ import {
 
 const TOKEN_NAME = "INFT";
 const TOKEN_SYMBOL = "iNFT";
-let TokenFactory: INFT__factory;
-let inftToken: INFT;
-let OWNER: SignerWithAddress;
-let TO: SignerWithAddress;
-let FROM: SignerWithAddress;
-let OTHER: SignerWithAddress;
+var TokenFactory: INFT__factory;
+var inftToken: INFT;
+var OWNER: SignerWithAddress;
+var ADDR1: SignerWithAddress;
+var ADDR2: SignerWithAddress;
+var ADDR3: SignerWithAddress;
 
 // lifecyle. These are: `before`, `beforeEach`, `after`, `afterEach`.
 
@@ -25,18 +25,19 @@ describe("Token contract", function () {
     TokenFactory =
       await ethers.getContractFactory(TOKEN_NAME);
     // ASSIGN
-    [OWNER, TO, FROM, OTHER] =
+    [OWNER, ADDR1, ADDR2, ADDR3] =
       await ethers.getSigners();
     // Deploy contract and wait for its transaction to be minded
     inftToken = await TokenFactory.deploy();
   });
 
-  // You can nest describe calls to create subsections.
   describe("Deployment", function () {
-    it("Should set the right owner", async function () {
+    // Symbol shoul equal
+    it("symbol should equal ", async function () {
       // Assert token owner address is equal to the signers owner address
       // @ts-expect-error
-      expect(await inftToken.owner()).to.equal(
+      inftToken.connect();
+      expect(await inftToken.symbol()).to.equal(
         OWNER.address
       );
     });

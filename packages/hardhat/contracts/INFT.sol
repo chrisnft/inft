@@ -14,7 +14,7 @@ contract INFT is ERC721URIStorage {
      *
      * @notice Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor() ERC721("iNFT", "iNFT") {}
+    constructor() ERC721("INFT", "iNFT") {}
 
     /**
      * @dev Base URI for computing the {tokenURI}. The resulting URI for each
