@@ -1,7 +1,7 @@
 {
-  "address": "0x03b8197d46B0D0e5db5BF95b7AfdEC1ABB317F36",
+  "address": "0x9029D555DC1A7A3f11102308bA22f54e3C55C23c",
   "network": "ropsten",
-  "name": "iNFT",
+  "name": "INFT",
   "symbol": "iNFT",
   "abi": [
     {
