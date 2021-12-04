@@ -12,6 +12,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "chai": "^4.3.4",
+    "directory-tree": "^3.0.1",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -24,8 +25,16 @@
     "ethers": "^5.5.1",
     "hardhat": "^2.7.0",
     "hardhat-gas-reporter": "^1.0.6",
+    "highlight.js": "^11.3.1",
+    "markdown-it": "^12.2.0",
+    "markdown-it-emoji": "^2.0.0",
+    "meow": "^7.1.1",
+    "mustache": "^4.2.0",
+    "node-emoji": "^1.11.0",
+    "pdf-from-html": "^0.1.2",
     "prettier": "^2.5.0",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
+    "solc-0.7": "npm:solc@^0.8.10",
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.17",
     "ts-node": "^10.4.0",
@@ -34,7 +43,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.0",
-    "fs-extra": "^10.0.0"
+    "fs-extra": "^10.0.0",
+    "solidity-docgen": "^0.5.16"
   },
   "scripts": {
     "chain": "hardhat node",
@@ -46,6 +56,7 @@
     "generate": "hardhat generate",
     "provider": "hardhat --network ropsten run scripts/provider.ts",
     "signer": "hardhat --network ropsten run scripts/signer.ts",
-    "test": "hardhat --network ropsten run scripts/ropsten.ts"
+    "test": "hardhat --network ropsten run scripts/ropsten.ts",
+    "doc": "npx solidity-docgen --solc-module solc-0.7"
   }
 }

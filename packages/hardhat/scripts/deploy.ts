@@ -1,12 +1,12 @@
-import { ethers } from "hardhat";
+import { ethers, config } from "hardhat";
 import json from "../artifacts/contracts/INFT.sol/INFT.json";
 import fs from "fs-extra";
 import path from "path";
 
 async function main() {
   const CONTRACT_NAME = "INFT";
-  const HARDHAT_NETWORK =
-    process.env.HARDHAT_NETWORK;
+  const HARDHAT_NETWORK = process.env
+    .HARDHAT_NETWORK as string;
 
   console.log(
     `\n📟  Deploying ${CONTRACT_NAME} on network  🌎  '${HARDHAT_NETWORK}'...`
