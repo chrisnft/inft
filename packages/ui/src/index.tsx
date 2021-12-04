@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 import './app.css'
+import dotenv from 'dotenv'
+dotenv.config()
 
 /**
  * Render
@@ -13,5 +15,4 @@ ReactDOM.render(
   document.getElementById('root')
 )
 
-/** API */
-export { API } from './api'
+export { ClientAPI } from './api'

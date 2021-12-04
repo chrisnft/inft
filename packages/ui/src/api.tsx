@@ -1,27 +1,19 @@
 import { ethers } from 'ethers'
 // @ts-expect-error
 import { NFTStorage } from 'nft.storage/dist/bundle.esm.min.js'
-// import { NFTStorage } from 'nft.storage' // Only works with webpack V5
+import { APIClientOptions, NFTMetadataRequest } from './types'
+import depJson from './deployment.json'
 
-const ethFormat: typeof ethers.utils.formatEther = ethers.utils.formatEther
-
-// export type API = typeof API
-
-interface APIConfig {
-  abi: ethers.ContractInterface
-  client: ClientOptions
-  contractAddress: string
-}
+export type ClientAPI = ReturnType<typeof createClientAPI>
 
 /**
- * Creates an RPC API for requests and responsts to network.
- * @param provider Provider
+ * Client side API.
  * @returns API
  */
-export function API(config: APIConfig) {
-  // Private scope
+export function createClientAPI(options?: APIClientOptions) {
+  const ethFormat: typeof ethers.utils.formatEther = ethers.utils.formatEther
   const debug = console.log
-  const { ipfs, provider } = createClients(config.client)
+  const clients = createClients(options)
 
   const createUserAccount = async (key?: string) => {
     const wallet = _createUserWallet(key)
@@ -38,17 +30,12 @@ export function API(config: APIConfig) {
     } else {
       wallet = ethers.Wallet.createRandom()
     }
-    return wallet.connect(provider)
+    return wallet.connect(clients.provider)
   }
 
   const _createUserContract = (signer: ethers.Signer) => {
-    return new ethers.Contract(config.contractAddress, config.abi, signer)
-  }
-
-  type NFTMetadataRequest = {
-    name: string
-    description: string
-    file: File | Blob
+    const { address, abi } = clients.contract
+    return new ethers.Contract(address, abi, signer)
   }
 
   const mint = async (
@@ -80,7 +67,7 @@ export function API(config: APIConfig) {
       image: file,
     }
 
-    const result = await ipfs.store(req)
+    const result = await clients.ipfs.store(req)
 
     const FRIENDLY_TOKEN_URI =
       TOKEN_URI_BASE_URL + result.ipnft + '/metadata.json' // Don't use 'ipfs://' because of browsers
@@ -93,27 +80,12 @@ export function API(config: APIConfig) {
     return nftMetaView
   }
 
-  // // IF USING IPFSHTTPCLIENT
-  // const _ipfsAdd = ()=>{
-  //   const resFile = await ipfs.add(file, { pin: true }) // Add and PIN image
-
-  //   console.log(resFile)
-
-  //   await timeout(1)
-
-  //   const req = {
-  //     name: data.name,
-  //     description: data.description,
-  //     image: TOKEN_URI_BASE_URL + resFile.path,
-  //   }
-  //   const resMeta = await ipfs.add(JSON.stringify(req), { pin: true }) // ADD AND PIN NFT METADATA
-  // }
-
   /**
    * Fetches information from the network.
    * @returns Network information
    */
   const fetchNetwork = async () => {
+    const provider = clients.provider
     await timeout(1)
     debug('Fetching...')
     const eprice = await provider.getEtherPrice()
@@ -135,6 +107,7 @@ export function API(config: APIConfig) {
    * @returns The transactin and receipt
    */
   const fetchTransaction = async (hash: string) => {
+    const provider = clients.provider
     const transaction = await provider.getTransaction(hash)
     const receipt = await provider.getTransactionReceipt(hash)
     return {
@@ -150,6 +123,7 @@ export function API(config: APIConfig) {
    * @returns Block data
    */
   const fetchBlock = async (blockHashOrBlockTag: ethers.providers.BlockTag) => {
+    const provider = clients.provider
     const blockNum = await provider.getBlockNumber() // Current block #
     const block = await provider.getBlock(blockHashOrBlockTag || blockNum)
     const blockTrans = await provider.getBlockWithTransactions(
@@ -160,83 +134,72 @@ export function API(config: APIConfig) {
 
   const timeout = (sec: number) => new Promise((r) => setTimeout(r, sec * 1000))
 
-  const pub = {
+  const api = {
     createUserAccount,
     mint,
     fetchNetwork,
     fetchTransaction,
     fetchBlock,
     timeout,
-    provider,
+    clients,
   }
 
-  return pub
-}
-
-interface ClientOptions {
-  network: string
-
-  ipfs: {
-    host: string
-    port: number
-    protocol: string
-    headers: {
-      Authorization: string
-    }
-  }
-
-  provider: {
-    etherscan: string | undefined
-    infura: string | undefined
-  }
-
-  nftStorage: string | undefined
+  return api
 }
 
 /**
- *
+ * Creates API clients.
  * @param cliOpts API Client options
  * @returns
  */
-const createClients = (cliOpts: ClientOptions) => {
-  // const createHttpIPFSClient = () => {
-  //   const client = createIPFS(cliOpts.ipfs)
-  //   return client
-  // }
-
-  const createNFTStorageClient = () => {
-    const apiKey = cliOpts.nftStorage
-    const client = new NFTStorage({ token: apiKey || '' })
-    // async function main() {
-    //   var url = "https://api.nft.storage/upload";
-    //   var data = new Blob([bytes], { type: "image/png"});
-
-    //   fetch(url, {
-    //       "method": "POST",
-    //       "headers": {
-    //            "Authorization": "Bearer",
-    //            "Content-Type": "application/x-www-form-urlencoded"
-    //          },
-    //        "body": data,
-    //     })
-    //    .then(response => {
-    //         console.log(response);
-    //    })
-    return client
+const createClients = (options: Partial<APIClientOptions> = {}) => {
+  // Init defaults
+  const IPFS_ID = process.env.REACT_APP_INFURA_IPFS_ID
+  const IPFS_KEY = process.env.REACT_APP_INFURA_IPFS_KEY
+  const ETHERSCAN_KEY = process.env.REACT_APP_INFURA_ETHERSCAN_KEY
+  const INFURA_ID = process.env.REACT_APP_INFURA_ID
+  const NFT_STRORAGE_KEY = process.env.REACT_APP_NFT_STORAGE_KEY
+  const defaultProviders = {
+    etherscan: ETHERSCAN_KEY,
+    infura: INFURA_ID,
+  }
+  const auth = 'Authorization: Basic ' + btoa(`${IPFS_ID}:${IPFS_KEY}`)
+  const defaultIpfsOptions = {
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+      Authorization: auth,
+    },
+  }
+  const defaultClientOpts = {
+    network: depJson.network ? depJson.network : 'localhost',
+    ipfs: defaultIpfsOptions,
+    nftStorage: NFT_STRORAGE_KEY,
+    provider: defaultProviders,
+  }
+  const defaultOpts = {
+    client: defaultClientOpts,
+    contractAddress: depJson.address,
+    abi: depJson.abi,
   }
 
-  const createDefaultProvider = () => {
-    return ethers.providers.getDefaultProvider(
-      cliOpts.network,
-      cliOpts.provider
-    )
-  }
+  const opts = Object.assign(defaultOpts, options)
 
-  const ipfs = createNFTStorageClient()
-  const provider = createDefaultProvider()
+  const nftStorageClient = new NFTStorage({ token: opts.nftStorage || '' })
+
+  const provider = ethers.providers.getDefaultProvider(
+    opts.network,
+    opts.provider
+  )
 
   return {
-    ipfs,
+    ipfs: nftStorageClient, // TODO: nftStorageClient || HTTPIPFSClient
     provider,
+    contract: {
+      abi: opts.abi,
+      network: opts.network,
+      address: opts.contractAddress,
+    },
   }
 }

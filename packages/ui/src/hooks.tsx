@@ -1,8 +1,8 @@
 import { ethers } from 'ethers'
 import React, { useState, useEffect } from 'react'
-import { API } from './api'
+import { createClientAPI } from './api'
 import { config } from './config'
-const api = API(config.api)
+const api = createClientAPI(config.api)
 const debug = console.log
 
 // TODO: V2 Seperate state and use generics for hooks
