@@ -15,4 +15,4 @@ ReactDOM.render(
   document.getElementById('root')
 )
 
-export { ClientAPI } from './api'
+export * as api from './api'

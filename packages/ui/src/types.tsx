@@ -1,5 +1,7 @@
 import { ethers } from 'ethers'
 
+// export type ClientAPI = ReturnType<typeof createClientAPI>
+
 /**
  * API Client Options
  */
