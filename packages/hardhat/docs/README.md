@@ -16,6 +16,7 @@
   - [Requirements](#requirements)
   - [API](#api)
   - [Test Cases](#test-cases)
+  - [Design](#design)
   - [References](#references)
   - [Citations](#citations)
   <!--te-->
@@ -455,6 +456,24 @@ XXXXERC721, by William Entriken – a scalable example implementation
 
 Deployed on testnet with 1 billion assets and supporting all lookups with the metadata extension. This demonstrates that scaling is NOT a problem
 ```
+
+## Design
+
+> INFT Class Diagram
+
+<img src="./assets/inft-class-diagram.png"/>
+
+> Development flow
+
+<img src="./assets/dev-flow-chart.png"/>
+
+TODO - Product flow
+
+TODO - State
+
+TODO - Pseudocode
+
+TODO - Control
 
 ## References
 
