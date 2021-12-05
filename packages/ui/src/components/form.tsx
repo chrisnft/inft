@@ -1,17 +1,18 @@
-import { Spinner } from './spinner'
+import React from "react";
+import { Spinner } from "./spinner";
 export interface IForm {
-  handleSubmit: React.FormEventHandler<HTMLFormElement>
-  handleChange: React.ChangeEventHandler<HTMLInputElement>
-  handleDrop: React.ChangeEventHandler<HTMLInputElement>
+  handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleChange: React.ChangeEventHandler<HTMLInputElement>;
+  handleDrop: React.ChangeEventHandler<HTMLInputElement>;
   //   handleDrop: (files: any) => void;
   vals: {
-    name: string
-    description: string
-    file?: File | Blob | string
-    loading: boolean
-    prevImgURL?: string
-    error: unknown
-  }
+    name: string;
+    description: string;
+    file?: File | Blob | string;
+    loading: boolean;
+    prevImgURL?: string;
+    error: unknown;
+  };
 }
 
 export const MintForm = ({
@@ -47,17 +48,20 @@ export const MintForm = ({
           name="file"
           onChange={handleDrop}
         />
-        <Button type="submit" isLoading={vals.loading} />
+        <Button
+          type="submit"
+          isLoading={vals.loading}
+        />
       </form>
     </div>
-  )
-}
+  );
+};
 
 export interface INFTMeta {
-  name: string
-  description: string
-  image: string
-  tokenURI: string
+  name: string;
+  description: string;
+  image: string;
+  tokenURI: string;
 }
 
 const Input = ({
@@ -65,14 +69,17 @@ const Input = ({
   label = name,
   ...props
 }: {
-  name: string
-  label?: string
-  onChange: any
-  type: string
-  value?: any
+  name: string;
+  label?: string;
+  onChange: any;
+  type: string;
+  value?: any;
 }) => (
   <div className="sm:col-span-3">
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700"
+    >
       {capitalize(label)}
     </label>
     <div className="mt-1">
@@ -84,14 +91,14 @@ const Input = ({
       />
     </div>
   </div>
-)
+);
 
 const PreviewImg = ({
-  src = '',
-  alt = '',
+  src = "",
+  alt = "",
   width = 100,
   height = 100,
-  className = '',
+  className = "",
   refnode = null,
   ...props
 }) => {
@@ -99,19 +106,23 @@ const PreviewImg = ({
     <img
       src={src}
       alt={alt}
-      className={'h-30 ' + src == null ? 'invisible' : 'visible'}
+      className={
+        "h-30 " + src == null
+          ? "invisible"
+          : "visible"
+      }
       ref={refnode}
       {...props}
     />
-  )
-}
+  );
+};
 
 const Button = ({
   type,
   isLoading,
 }: {
-  type: 'button' | 'reset' | 'submit' | undefined
-  isLoading?: boolean
+  type: "button" | "reset" | "submit" | undefined;
+  isLoading?: boolean;
 }) => {
   return (
     <button
@@ -123,8 +134,8 @@ const Button = ({
         <span>Submit</span>
       </>
     </button>
-  )
-}
+  );
+};
 
 const ImgSVG = () => (
   <svg
@@ -141,7 +152,7 @@ const ImgSVG = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 const FileInput = ({
   name,
@@ -149,15 +160,18 @@ const FileInput = ({
   prevImgURL,
   ...props
 }: {
-  name: string
-  label?: string
-  onChange: any
-  type: string
-  prevImgURL?: string
+  name: string;
+  label?: string;
+  onChange: any;
+  type: string;
+  prevImgURL?: string;
 }) => {
   return (
     <div className="sm:col-span-6">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-gray-700"
+      >
         Image
       </label>
 
@@ -181,11 +195,14 @@ const FileInput = ({
             {...props}
           />
           {/* <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p> */}
-          {prevImgURL && <PreviewImg src={prevImgURL} />}
+          {prevImgURL && (
+            <PreviewImg src={prevImgURL} />
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+const capitalize = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
