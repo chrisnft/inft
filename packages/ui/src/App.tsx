@@ -15,7 +15,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const devKey =
-  "0x31c356d3f6c570c2a28a79a02cdb3218ff078c64c3224c4a943776c645f762dd";
+  "0x31c356d3f6c570c2a28a79a02cdb3218ff078c64c3224c4a943776c645f762dd"; // DEV KEY FOR PROFESSOR
 const api = createClientAPI(
   jsonDeployment.address,
   jsonDeployment.abi,
