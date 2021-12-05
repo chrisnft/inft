@@ -1,8 +1,16 @@
-import * as React from 'react'
 import * as view from './components'
-import * as hooks from './hooks'
+import * as types from './types'
+import { createHooks } from './hooks'
+import jsonDeployment from './deployment.json'
+import dotenv from 'dotenv'
+dotenv.config()
+
+// TODO: Move this to index as args
 const devKey =
   '0x31c356d3f6c570c2a28a79a02cdb3218ff078c64c3224c4a943776c645f762dd'
+const appContractAddr = jsonDeployment.address
+const appContractAbi = jsonDeployment.abi
+const hooks = createHooks(appContractAddr, appContractAbi)
 
 /**
  * Main
@@ -13,9 +21,14 @@ const devKey =
  *
  */
 function App() {
+  // const [app,setApp] = useState({ // TODO: App state?
+  // })
   const network = hooks.useNetwork()
+
   const account = hooks.useAccount(devKey)
+
   const form = hooks.useForm(account?.contract, account?.wallet.address)
+
   const mintHk = hooks.useMintOutput<typeof form['nftMeta']>(form.nftMeta)
 
   const AppTabProps = [

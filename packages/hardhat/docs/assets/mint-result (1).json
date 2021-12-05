@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "name": "asdf",
+    "description": "fdsa",
+    "image": "ipfs://bafybeibbdaqpwjbjivlmesrxjysrgqicoolr54myuzkp7neongzqbf6ql4/sb.jpg",
+    "tokenURI": "https://ipfs.io/ipfs/bafyreiaib6kzbio2y4374jei5ibtfnjhwws7ddssgxtxshsmwroyr6bnpm/metadata.json"
+  },
+  "mintResult": {
+    "type": 2,
+    "chainId": 3,
+    "nonce": 39,
+    "maxPriorityFeePerGas": {
+      "type": "BigNumber",
+      "hex": "0x9502f900"
+    },
+    "maxFeePerGas": {
+      "type": "BigNumber",
+      "hex": "0x9502f912"
+    },
+    "gasPrice": null,
+    "gasLimit": {
+      "type": "BigNumber",
+      "hex": "0x024709"
+    },
+    "to": "0x03b8197d46B0D0e5db5BF95b7AfdEC1ABB317F36",
+    "value": {
+      "type": "BigNumber",
+      "hex": "0x00"
+    },
+    "data": "0xd0def5210000000000000000000000002558853403ee5eb766513276f755c74bacb625040000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000005e68747470733a2f2f697066732e696f2f697066732f62616679726569616962366b7a62696f3279343337346a656935696274666e6a687777733764647373677874787368736d77726f797236626e706d2f6d657461646174612e6a736f6e0000",
+    "accessList": [],
+    "hash": "0xbb7c817ef9ffdd8fdb13b6ee8a374809fb9025607c63006ea4efe7a07e81e4ce",
+    "v": 0,
+    "r": "0xfaa4c11a7061acd0c7b15dcb5f51e1232e795da3761d255f236227779cfa96ad",
+    "s": "0x5ffe04719c553afcef6f09857439f7271d6747d6a13875d877f79ee19ae4f48f",
+    "from": "0x2558853403EE5Eb766513276f755c74bacb62504",
+    "confirmations": 0
+  }
+}

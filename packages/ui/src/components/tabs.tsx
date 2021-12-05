@@ -1,6 +1,26 @@
 import { Tab } from '@headlessui/react'
-import { Section } from './section'
+import { Section } from './main'
 import React from 'react'
+
+export const AppTabProps = (account: any, network: any, contract: any) => [
+  {
+    tab: '👤 ',
+    title: '👤  Account',
+    // data: { address: account?.wallet.address, balance: account?.balance },
+    data: account,
+  },
+  {
+    tab: '🌎 ',
+    title: '🌎  Network',
+    data: network,
+  },
+  {
+    tab: '📜 ',
+    title: '📜  Contract',
+    // data: account?.contract,
+    data: contract,
+  },
+]
 
 interface TopTabProps<T> {
   sections: T
@@ -51,11 +71,8 @@ export function AppTab<T>(props: TopTabProps<T>) {
 
   const handleDownloadOnClick = (e: React.MouseEvent) => {
     const v = {
-      // @ts-expect-error
       account: props.sections[0].data,
-      // @ts-expect-error
       network: props.sections[1].data,
-      // @ts-expect-error
       contract: props.sections[2].data,
     }
     outputToFile(v, ref)

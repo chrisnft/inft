@@ -1,165 +1,186 @@
 import { ethers } from 'ethers'
 import React, { useState, useEffect } from 'react'
-import { createClientAPI } from './api'
-const api = createClientAPI()
-const debug = console.log
-
-// TODO: V2 Seperate state and use generics for hooks
-// ReturnType
-type EventHandleSubmit = React.FormEventHandler<HTMLFormElement>
-type EventHandleChange = React.ChangeEventHandler<HTMLInputElement>
-type HookState = { loading: boolean; error: unknown | Error | unknown }
-type NFTMetadata = {
-  name: string
-  description: string
-  file: File | string | Blob
-}
-type FormState = NFTMetadata & HookState & { prevImgURL: string }
-type Unwrap<T> = T extends Promise<infer U>
-  ? U
-  : T extends (...args: any) => Promise<infer U>
-  ? U
-  : T extends (...args: any) => infer U
-  ? U
-  : T
-
-type NetworkState = Unwrap<typeof api.fetchNetwork> | null
-export const useNetwork = () => {
-  const [state, setState] = useState<NetworkState>(null)
-  React.useEffect(() => {
-    debug('useApi.useEffect...')
-    try {
-      api.fetchNetwork().then((v) => setState({ ...state, ...v }))
-    } catch (e) {
-      console.log(e)
-    }
-  }, [])
-
-  return state
-}
-
-type AccountState = Unwrap<typeof api.createUserAccount>
-export const useAccount = (key?: string) => {
-  const [state, setState] = useState<AccountState>(undefined)
-
-  React.useEffect(() => {
-    try {
-      api.createUserAccount(key).then((v) => {
-        if (v) {
-          setState({ ...state, ...v })
-        }
-      })
-    } catch (e) {
-      debug(e)
-    }
-  }, [])
-
-  return state
-}
+import { createClientAPI } from './api/api'
+// TODO: V2 - Seperate hooks from API (Hooks own module)
 
 /**
- * Form logic and handlers.
- * @param contract User connected contract
- * @param userAddress User address
- * @returns The form values from user
+ *
+ * @param contractAddress
+ * @param abi
+ * @returns
  */
-export function useForm(contract?: ethers.Contract, userAddress?: string) {
-  type MintResult = Unwrap<typeof api.mint> | null
-  const [nftMeta, setNftMeta] = useState<MintResult>(null)
+export const createHooks = (
+  contractAddress: string,
+  abi: ethers.ContractInterface
+) => {
+  const debug = console.log
+  const api = createClientAPI(contractAddress, abi)
 
-  const initVals: FormState = {
-    name: '',
-    description: '',
-    file: '',
-    prevImgURL: '',
-    loading: false,
-    error: '',
+  // TODO: V2 Seperate state and use generics for hooks
+  // ReturnType
+  type EventHandleSubmit = React.FormEventHandler<HTMLFormElement>
+  type EventHandleChange = React.ChangeEventHandler<HTMLInputElement>
+  type HookState = { loading: boolean; error: unknown | Error | unknown }
+  type NFTMetadata = {
+    name: string
+    description: string
+    file: File | string | Blob
   }
+  type FormState = NFTMetadata & HookState & { prevImgURL: string }
+  type Unwrap<T> = T extends Promise<infer U>
+    ? U
+    : T extends (...args: any) => Promise<infer U>
+    ? U
+    : T extends (...args: any) => infer U
+    ? U
+    : T
 
-  const [vals, setVals] = useState<FormState>(initVals)
-
-  const handleFile: EventHandleChange = (e) => {
-    const files = e.target.files as FileList
-    const prevImgURL = URL.createObjectURL(files[0])
-    setVals({
-      ...vals,
-      prevImgURL,
-      file: files[0],
-    })
-  }
-
-  const handleChange: EventHandleChange = (e) => {
-    setVals({
-      ...vals,
-      [e.target.name]: e.target.value,
-    })
-  }
-
-  const handleSubmit: EventHandleSubmit = async (e) => {
-    e.preventDefault()
-    debug('Minting....')
-    if (contract && userAddress) {
-      setVals({ ...vals, loading: true })
-      // await api.timeout(2)
+  type NetworkState = Unwrap<typeof api.fetchNetwork> | null
+  const useNetwork = () => {
+    const [state, setState] = useState<NetworkState>(null)
+    React.useEffect(() => {
+      debug('useApi.useEffect...')
       try {
-        const result = await api.mint(vals, contract, userAddress)
-        setNftMeta({ ...result })
+        api.fetchNetwork().then((v) => setState({ ...state, ...v }))
       } catch (e) {
         console.log(e)
-        setVals({ ...vals, loading: false, error: String(e) })
+      }
+    }, [])
+
+    return state
+  }
+
+  type AccountState = Unwrap<typeof api.createUserAccount>
+  const useAccount = (key?: string) => {
+    const [state, setState] = useState<AccountState>(undefined)
+
+    React.useEffect(() => {
+      try {
+        api.createUserAccount(key).then((v) => {
+          if (v) {
+            setState({ ...state, ...v })
+          }
+        })
+      } catch (e) {
+        debug(e)
+      }
+    }, [])
+
+    return state
+  }
+
+  /**
+   * Form logic and handlers.
+   * @param contract User connected contract
+   * @param userAddress User address
+   * @returns The form values from user
+   */
+  function useForm(contract?: ethers.Contract, userAddress?: string) {
+    type MintResult = Unwrap<typeof api.mint> | null
+    const [nftMeta, setNftMeta] = useState<MintResult>(null)
+
+    const initVals: FormState = {
+      name: '',
+      description: '',
+      file: '',
+      prevImgURL: '',
+      loading: false,
+      error: '',
+    }
+
+    const [vals, setVals] = useState<FormState>(initVals)
+
+    const handleFile: EventHandleChange = (e) => {
+      const files = e.target.files as FileList
+      const prevImgURL = URL.createObjectURL(files[0])
+      setVals({
+        ...vals,
+        prevImgURL,
+        file: files[0],
+      })
+    }
+
+    const handleChange: EventHandleChange = (e) => {
+      setVals({
+        ...vals,
+        [e.target.name]: e.target.value,
+      })
+    }
+
+    const handleSubmit: EventHandleSubmit = async (e) => {
+      e.preventDefault()
+      debug('Minting....')
+      if (contract && userAddress) {
+        setVals({ ...vals, loading: true })
+        // await api.timeout(2)
+        try {
+          const result = await api.mint(vals, contract, userAddress)
+          setNftMeta({ ...result })
+        } catch (e) {
+          console.log(e)
+          setVals({ ...vals, loading: false, error: String(e) })
+        }
+      }
+      // Update state
+      setVals({ ...vals, loading: false })
+    }
+
+    return {
+      handleChange,
+      handleFile,
+      handleSubmit,
+      formVals: vals,
+      nftMeta,
+    }
+  }
+
+  function useTab<T>(data: T) {
+    const [state, setState] = React.useState<T>()
+    setState(data)
+    return state
+  }
+
+  function useMintOutput<T>(mintData: T) {
+    const ref = React.useRef<HTMLAnchorElement>(null)
+
+    const outputToFile = (
+      data: any,
+      element?: React.RefObject<HTMLAnchorElement>
+    ) => {
+      if (element && element.current) {
+        // console.log(data)
+        const output = JSON.stringify(data, null, 2)
+        const file = new Blob([output], { type: 'text/plain' })
+        const current = element.current
+        current.href = URL.createObjectURL(file)
+        current.download = 'mint-result.json'
+        current.click()
       }
     }
-    // Update state
-    setVals({ ...vals, loading: false })
+
+    const handleOutputSave = () => {
+      outputToFile(mintData, ref)
+    }
+
+    useEffect(() => {
+      debug('Effect UseMintOutput standing by...')
+      if (mintData) {
+        debug('Effect UseMintOutput fire...')
+        outputToFile(mintData, ref)
+        return () => {
+          // Cleanup
+        }
+      }
+    }, [mintData])
+
+    return { ref, handleOutputSave }
   }
 
   return {
-    handleChange,
-    handleFile,
-    handleSubmit,
-    formVals: vals,
-    nftMeta,
+    useMintOutput,
+    useTab,
+    useForm,
+    useAccount,
+    useNetwork,
   }
-}
-
-export function useTab<T>(data: T) {
-  const [state, setState] = React.useState<T>()
-  setState(data)
-  return state
-}
-
-export function useMintOutput<T>(mintData: T) {
-  const ref = React.useRef<HTMLAnchorElement>(null)
-
-  const outputToFile = (
-    data: any,
-    element?: React.RefObject<HTMLAnchorElement>
-  ) => {
-    if (element && element.current) {
-      // console.log(data)
-      const output = JSON.stringify(data, null, 2)
-      const file = new Blob([output], { type: 'text/plain' })
-      const current = element.current
-      current.href = URL.createObjectURL(file)
-      current.download = 'mint-result.json'
-      current.click()
-    }
-  }
-
-  const handleOutputSave = () => {
-    outputToFile(mintData, ref)
-  }
-
-  useEffect(() => {
-    debug('Effect UseMintOutput standing by...')
-    if (mintData) {
-      debug('Effect UseMintOutput fire...')
-      outputToFile(mintData, ref)
-      return () => {
-        // Cleanup
-      }
-    }
-  }, [mintData])
-
-  return { ref, handleOutputSave }
 }

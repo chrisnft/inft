@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
-import './app.css'
 
 /**
  * Render
@@ -13,4 +12,4 @@ ReactDOM.render(
   document.getElementById('root')
 )
 
-// export * as api from './api/api'
+export { API } from './api'

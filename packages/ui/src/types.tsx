@@ -1,35 +1,22 @@
 import { ethers } from 'ethers'
+import { APIClient } from './api/api'
+import {
+  // TransactionResponse,
+  BlockWithTransactions,
+} from '@ethersproject/abstract-provider/lib.esm/index'
+import type { FetchNetworkResponse as FNR } from './api/api'
 
+export type FetchNetworkHandler = APIClient['fetchNetwork']
+export type FetchNetworkResponse =
+  | Promise<null | undefined | FNR>
+  | null
+  | undefined
+// export type { FetchNetworkResponse } from './api'
+export type { APIClient } from './api/api'
+
+// export type FetchNetworkResponse = ReturnType<FetchNetworkHandler>
+// type NetworkState = Unwrap<typeof api.fetchNetwork> | null
 // export type ClientAPI = ReturnType<typeof createClientAPI>
-
-/**
- * API Client Options
- */
-export interface APIClientOptions {
-  network: string
-
-  ipfs: {
-    host: string
-    port: number
-    protocol: string
-    headers: {
-      Authorization: string
-    }
-  }
-
-  provider: {
-    etherscan: string | undefined
-    infura: string | undefined
-  }
-
-  nftStorage: string | undefined
-}
-
-export type NFTMetadataRequest = {
-  name: string
-  description: string
-  file: File | Blob
-}
 
 export type EventHandleSubmit = React.FormEventHandler<HTMLFormElement>
 

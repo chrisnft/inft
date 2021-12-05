@@ -7,14 +7,14 @@
  * (c), 2021, Crash.
  **/
 import { ethers } from 'ethers'
-// @ts-expect-error
-import { NFTStorage as NFTStorageMin } from 'nft.storage/dist/bundle.esm.min.js'
+// import { NFTStorage as NFTStorageMin } from 'nft.storage/dist/bundle.esm.min.js'
 import { NFTStorage } from 'nft.storage'
-import depJson from './deployment.json' // Contract deployment information
 import {
   // TransactionResponse,
   BlockWithTransactions,
 } from '@ethersproject/abstract-provider/lib.esm/index'
+import dotenv from 'dotenv'
+dotenv.config()
 
 /**
  * The user's NFT metadata request.
@@ -29,9 +29,9 @@ export type NFTMetadataRequest = {
  * The options for the API.
  */
 export interface APIClientOptions {
-  network: string
+  network?: string
 
-  ipfs: {
+  ipfs?: {
     host: string
     port: number
     protocol: string
@@ -40,14 +40,28 @@ export interface APIClientOptions {
     }
   }
 
-  provider: {
+  provider?: {
     etherscan: string | undefined
     infura: string | undefined
   }
 
-  nftStorage: string | undefined
+  nftStorage?: string | undefined
+
+  devKey?: string
 }
 
+export interface ClientContract {
+  abi: ethers.ContractInterface
+  network?: string
+  address: string
+}
+
+export interface Clients {
+  ipfs: NFTStorage
+  provider: ethers.providers.BaseProvider
+  contract: ClientContract
+  opts: APIClientOptions
+}
 /**
  * {@link createClientAPI}
  */
@@ -59,6 +73,8 @@ export interface APIClient {
     image: URL
   }>
 
+  getOptions: () => APIClientOptions
+
   createUserAccount: (key?: string | undefined) => Promise<
     | {
         wallet: ethers.Wallet
@@ -68,12 +84,11 @@ export interface APIClient {
     | undefined
   >
 
-  fetchNetwork: () => Promise<{
-    etherPrice: number
-    blockNumber: number
-    network: ethers.providers.Network
-    blockWithTransactions: BlockWithTransactions
-  }>
+  /**
+   * TODO: Change to fetch network and state
+   * TODO: Better to just return block and network and let hooks organize data?
+   */
+  fetchNetwork: () => FetchNetworkResponse
 
   fetchTransaction: (hash: string) => Promise<{
     transaction: ethers.providers.TransactionResponse
@@ -113,10 +128,19 @@ export interface APIClient {
  *
  * @returns The client side API.
  */
-export function createClientAPI(options?: APIClientOptions): APIClient {
+export function createClientAPI(
+  contractAddress: string,
+  abi: ethers.ContractInterface,
+  options?: APIClientOptions
+): APIClient {
   const ethFormat: typeof ethers.utils.formatEther = ethers.utils.formatEther
   const debug = console.log
-  const clients = createClients(options)
+  const _options = options
+  const clients = createClients(contractAddress, abi, options)
+
+  const getOptions = () => {
+    return _options
+  }
 
   /**
    * Creates the user's wallet connected to the INFT contract.
@@ -125,7 +149,7 @@ export function createClientAPI(options?: APIClientOptions): APIClient {
    * @returns User's wallet
    */
   const createUserAccount = async (key?: string) => {
-    const wallet = _createUserWallet(key)
+    const wallet = _createUserWallet(options?.devKey || key) // TODO: Key's value should be base on modes 'dev', 'test', ...
     const contract = _createUserContract(wallet)
     const wballance = await wallet.getBalance()
     const balance = ethFormat(wballance)
@@ -284,12 +308,9 @@ export function createClientAPI(options?: APIClientOptions): APIClient {
     return clients.contract
   }
 
-  const newClientAPI = (newOptions: APIClientOptions) => {
-    return createClientAPI(newOptions)
-  }
-
   const api = {
     addNFTMetadataToIPFS,
+    getOptions,
     createUserAccount,
     fetchNetwork,
     fetchTransaction,
@@ -298,23 +319,10 @@ export function createClientAPI(options?: APIClientOptions): APIClient {
     getIPFS,
     getContract,
     mint,
-    newClientAPI,
     timeout,
   }
 
   return api
-}
-
-export interface ClientContract {
-  abi: ethers.ContractInterface
-  network?: string
-  address: string
-}
-
-export interface Clients {
-  ipfs: NFTStorage
-  provider: ethers.providers.BaseProvider
-  contract: ClientContract
 }
 
 /**
@@ -324,14 +332,18 @@ export interface Clients {
  * @returns
  */
 export const createClients = (
+  contractAddress: string,
+  abi: ethers.ContractInterface,
   options: Partial<APIClientOptions> = {}
 ): Clients => {
   // Init defaults
   const IPFS_ID = process.env.REACT_APP_INFURA_IPFS_ID
   const IPFS_KEY = process.env.REACT_APP_INFURA_IPFS_KEY
-  const ETHERSCAN_KEY = process.env.REACT_APP_INFURA_ETHERSCAN_KEY
+  const ETHERSCAN_KEY = process.env.REACT_APP_ETHERSCAN_KEY
   const INFURA_ID = process.env.REACT_APP_INFURA_ID
+  const INFURA_KEY = process.env.REACT_APP_INFURA_KEY
   const NFT_STRORAGE_KEY = process.env.REACT_APP_NFT_STORAGE_KEY
+
   const defaultProviders = {
     etherscan: ETHERSCAN_KEY,
     infura: INFURA_ID,
@@ -351,16 +363,17 @@ export const createClients = (
     nftStorage: NFT_STRORAGE_KEY,
     provider: defaultProviders,
   }
+
   const defaultOpts = {
-    client: defaultClientOpts,
-    contractAddress: depJson.address,
-    abi: depJson.abi,
+    ...defaultClientOpts,
+    contractAddress: contractAddress,
+    abi: abi,
   }
 
   // Copy and merge default options and argument options
   const opts = Object.assign(defaultOpts, options)
 
-  const nftStorageClient: NFTStorage = new NFTStorageMin({
+  const nftStorageClient: NFTStorage = new NFTStorage({
     token: opts.nftStorage || '',
   })
 
@@ -377,5 +390,13 @@ export const createClients = (
       network: opts.network,
       address: opts.contractAddress,
     },
+    opts,
   }
 }
+
+export type FetchNetworkResponse = Promise<{
+  etherPrice: number
+  blockNumber: number
+  network: ethers.providers.Network
+  blockWithTransactions: BlockWithTransactions
+}>

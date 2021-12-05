@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "name": "asdffsa",
+    "description": "adfa",
+    "image": "ipfs://bafybeifrihmrojxc3fdt33ae7odapiwcbq77t24n7j64xfl76bp5tgsyr4/Suicide-boys.jpeg",
+    "tokenURI": "https://ipfs.io/ipfs/bafyreih6fdfq6nzt4aw4xopkh2dwdodagfqsdbvjhc2xk3b2nmihybaieu/metadata.json"
+  },
+  "mintResult": {
+    "type": 2,
+    "chainId": 3,
+    "nonce": 38,
+    "maxPriorityFeePerGas": {
+      "type": "BigNumber",
+      "hex": "0x9502f900"
+    },
+    "maxFeePerGas": {
+      "type": "BigNumber",
+      "hex": "0x9502f916"
+    },
+    "gasPrice": null,
+    "gasLimit": {
+      "type": "BigNumber",
+      "hex": "0x024709"
+    },
+    "to": "0x03b8197d46B0D0e5db5BF95b7AfdEC1ABB317F36",
+    "value": {
+      "type": "BigNumber",
+      "hex": "0x00"
+    },
+    "data": "0xd0def5210000000000000000000000002558853403ee5eb766513276f755c74bacb625040000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000005e68747470733a2f2f697066732e696f2f697066732f62616679726569683666646671366e7a7434617734786f706b68326477646f6461676671736462766a686332786b3362326e6d69687962616965752f6d657461646174612e6a736f6e0000",
+    "accessList": [],
+    "hash": "0x6c536206abdd84b6cd6514dc3b55924ec6534854c9c63ae18d00b8713a43ca80",
+    "v": 0,
+    "r": "0x0952895533170918aa14d356a8f812e040260cb2e6b6a48dfc39daf5c81f2f6a",
+    "s": "0x4288e0ea97e82cc3574bad6a53442bf356958592eb378c7fc70f40d25afe1227",
+    "from": "0x2558853403EE5Eb766513276f755c74bacb62504",
+    "confirmations": 0
+  }
+}
